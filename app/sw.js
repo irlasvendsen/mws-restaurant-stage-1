@@ -43,34 +43,28 @@ function jsonBD(request) {
 		.then(response => new Response(JSON.stringify(response)));
 }
 
+function cacheResponse(event){
+  event.respondWith(
+    caches.match(event.request).then(response => {
+        return response || fetch(event.request).then(responseF =>{
+          return caches.open(CACHE).then(cache => {
+            cache.put(event.request, responseF.clone())
+            return responseF;
+          })
+        })
+    })
+ );
+}
+
 self.addEventListener('fetch', function(event) {
 	let reqUrl = new URL(event.request.url);
 
 	if(reqUrl.port ==='1337'){
-		event.respondWith( jsonBD(event.request))
+		event.respondWith( jsonBD(event.request));
 	}
 	else {
-    if (reqUrl.origin === location.origin) {
 		event.waitUntil(
-			event.respondWith(
-				caches.match(event.request).then(function(response) {
-					if (response) {
-						return response;
-					}
-					var request = event.request.clone();
-					return fetch(request).then(function(response){
-						if(!response || response !==200){
-							return response;
-						}
-						var responseCache = response.clone();
-						caches.open(CACHE).then(function(cache){
-							cache.put(event.request,responseCache);
-						});
-						return response;
-					});
-				})
-			)
-		);
-  }
+				cacheResponse(event)
+			);
 	}
 });
