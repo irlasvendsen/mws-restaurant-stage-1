@@ -1,0 +1,20 @@
+{
+  "short_name": "Restaurant Review",
+  "name": "Mobile Web Specialist Restaurant Review",
+  "icons": [
+    {
+      "src": "/images/1-50pc.jpg",
+      "type": "image/jpg",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/images/2-50pc.jps",
+      "type": "image/jps",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#3367D6",
+  "display": "standalone",
+  "theme_color": "#3367D6"
+}
