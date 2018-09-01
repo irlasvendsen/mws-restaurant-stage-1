@@ -80,13 +80,17 @@ gulp.task('cp-js', function(){
 });
 
 gulp.task('cp-pages', function(){
-	return gulp.src('./app/*.html', './app/manifest.json').pipe(gulp.dest('./dist'));
+	return gulp.src('./app/*.html').pipe(gulp.dest('./dist'));
 });
+
+gulp.task('cp-manifest', function(){
+	return gulp.src('./app/manifest.json').pipe(gulp.dest('./dist'));
+});
+
 gulp.task('cp-img', function(){
 	return gulp.src('./app/img/*').pipe(gulp.dest('./dist/img'));
 });
 
-gulp.task('default', gulp.parallel('sass','cp-pages','cp-img','cp-js', 'db'), function(){
-
+gulp.task('default', gulp.parallel('sass','cp-pages','cp-img','cp-js', 'db', 'cp-manifest'), function(){
 	return;
 });
