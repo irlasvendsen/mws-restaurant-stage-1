@@ -115,6 +115,9 @@ nav {
   text-align:center;
 	position: relative;
 }
+#breadcrumbNav{
+	background-color: white;
+}
 nav h1 {
   margin: auto;
 }
