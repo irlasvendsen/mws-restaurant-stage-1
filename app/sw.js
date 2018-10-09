@@ -15,8 +15,6 @@ var urlsToCache = [
   '/restaurant.html?id=9',
   '/restaurant.html?id=10',
   '/css/styles.css',
-  '/images',
-  '/images_35',
   '/img',
   '/js/main.js',
   '/js/dbhelper.js',
@@ -39,20 +37,39 @@ self.addEventListener('active', function(event){
 });
 
 function jsonBD(request) {
+  if (request.url.indexOf('reviews') > -1) {
+
+    return fetch(request)
+    .then(response => response.json())
+    .then(reviewsj => {
+      set('reviews', reviewsj);
+      return (reviewsj || get('reviews').then(rev=>{return rev;}));
+    }).then(response => new Response(JSON.stringify(response)));
+
+    /*return get('reviews')
+      .then(rev => {
+        return ( rev || fetch(request)
+        .then(response => response.json())
+        .then(reviewsj => {
+          set('reviews', reviewsj);
+          return reviewsj;
+        })
+      );
+    }).then(response => new Response(JSON.stringify(response)));*/
+
+  } else {
 	return get('restaurants')
 		.then(restaurants => {
 			return ( restaurants || fetch(request)
 				.then(response => response.json())
 				.then(restaurantsJ => {
 					set('restaurants', restaurantsJ);
-					restaurantsJ.forEach(function(rest){
-						set(rest.id, rest);
-					});
 					return restaurantsJ;
 				})
 			);
 		})
 		.then(response => new Response(JSON.stringify(response)));
+  }
 }
 
 function cacheResponse(event){
@@ -60,10 +77,10 @@ function cacheResponse(event){
     caches.match(event.request).then(response => {
         return response || fetch(event.request).then(responseF =>{
           return caches.open(CACHE).then(cache => {
-            cache.put(event.request, responseF.clone())
+            cache.put(event.request, responseF.clone());
             return responseF;
-          })
-        })
+          });
+        });
     })
  );
 }
@@ -72,7 +89,13 @@ self.addEventListener('fetch', function(event) {
 	let reqUrl = new URL(event.request.url);
 
 	if(reqUrl.port ==='1337'){
-		event.respondWith( jsonBD(event.request));
+    if(event.request.method !== 'GET'){
+      return fetch(event.request).then(resp => resp.json())
+     .then(respjson => respjson);
+    }else{
+      event.respondWith(jsonBD(event.request));
+    }
+
 	}
 	else {
 		event.waitUntil(

@@ -4,35 +4,111 @@
 class DBHelper {
 
 
-
-
+    static get PORT() {
+      const port = 1337;
+      return port;
+    }
   /**
    * Database URL.
    * Change this to restaurants.json file location on your server.
    */
   static get DATABASE_URL() {
-    const port = 1337 // Change this to your server port
-    return `http://localhost:${port}/restaurants`;
+  //  const port = 1337; // Change this to your server port
+    return `http://localhost:${DBHelper.PORT}/restaurants`;
+  }
+
+  static get favoriteRestaurants(){
+    return `${DBHelper.DATABASE_URL}?is_favorite=true`;
+  }
+
+  static favoriteRestaurant(restaurant_id, is_favorite){
+    return `${DBHelper.DATABASE_URL}/${restaurant_id}/?is_favorite=${is_favorite}`;
+  }
+
+  static restaurantByID(restaurant_id){
+    return `${DBHelper.DATABASE_URL}/${restaurant_id}`;
+  }
+  static get allRestaurantReviews(){
+    return `http://localhost:${DBHelper.PORT}/reviews/`;
+  }
+  static allReviewsRestaurant(restaurant_id){
+    return `${DBHelper.allRestaurantReviews}?restaurant_id=${restaurant_id}`;
+  }
+
+  static restaurtantByReview(review_id){
+    return `${DBHelper.allRestaurantReviews}/${review_id}`;
+  }
+
+  static get restaurant_id(){
+    const url = window.location.pathname;
+    const id = url.substring(url.lastIndexOf('/') + 1);
+    return id;
+  }
+
+  static saveReview(id, rating, comments, name, callback){
+    let reviewPending = []
+    reviewPending.length = 0;
+    let review = {id, rating, comments, name};
+    reviewPending.push(review);
+    fetch(DBHelper.allRestaurantReviews,{
+     method: 'POST',
+     mode:'cors',
+     headers: { 'Content-Type': 'application/json; charset=utf-8'
+        },
+        body:JSON.stringify({restaurant_id: id,
+                    name: name,
+                    rating: rating,
+                    comments: comments
+                  })
+    }).then(response => {
+      console.log(response);
+      if(!response.ok){
+        console.log('error response not ok');
+        iKeyVal.get('reviews_pending').then(val => {
+          if (val == undefined){
+              console.log(val);
+              iKeyVal.set('reviews_pending',reviewPending);
+          }else{
+            val.push(review);
+            iKeyVal.set('reviews_pending',val);
+          }
+        });
+        callback('You are offline, your review will be uploaded when you get online', null);
+      }
+      else{
+        console.log('response ok');
+        return response.json();
+      }}).then(json => {
+        callback(null, json);
+      })
+    .catch( error => {
+        iKeyVal.get('reviews_pending').then(val => {
+          if (val == undefined){
+              console.log(val);
+              iKeyVal.set('reviews_pending',reviewPending);
+          }else{
+            val.push(review);
+            iKeyVal.set('reviews_pending',val);
+          }
+        });
+           callback('You are offline, your review will be uploaded when you get online', null);
+    });
+  }
+
+  static setFavorite(id, is_favorite, callback){
+    fetch(DBHelper.favoriteRestaurant(id,is_favorite),{
+      method:'POST',
+      mode:'cors',
+      headers: { 'Content-Type': 'application/json; charset=utf-8'
+         }
+    }).then(response =>response.json());
+    callback(null, null);
   }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-  /**  let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const json = JSON.parse(xhr.responseText);
-        const restaurants = json.restaurants;
-        callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
-      }
-    };
-    xhr.send();
-*/
 		fetch(DBHelper.DATABASE_URL)
 			.then(response => response.json())
 			.then(function(data){
@@ -40,6 +116,52 @@ class DBHelper {
 				//console.log(data);
 				callback(null, data);
 			}).catch(e => callback(e, null));
+  }
+
+  static fetchReviewByRestaurantId(id, callback) {
+    iKeyVal.get('reviews_pending').then(val => {
+      if (val != undefined){
+        val.forEach(rev =>{
+          fetch(DBHelper.allRestaurantReviews,{
+           method: 'POST',
+           mode:'cors',
+           headers: { 'Content-Type': 'application/json; charset=utf-8'
+              },
+              body:JSON.stringify({restaurant_id: rev.id,
+                          name: rev.name,
+                          rating: rev.rating,
+                          comments: rev.comments
+                        })
+          }).then(response => {
+            }).then(json =>json).catch( error => {
+
+          });
+        });
+      }
+    });
+    iKeyVal.get('reviews_pending').then(val => {
+      if (val != undefined){
+      iKeyVal.del('reviews_pending');
+      }
+    });
+
+    fetch(DBHelper.allReviewsRestaurant(id),{method:'GET'}).then(resp => {
+      if (!resp.ok) {
+        iKeyVal.get('reviews').then(val => {
+          if (val != undefined){
+              console.log(val);
+              callback(null, val);
+          }else{
+            throw 'error no reviews';
+          }
+        });
+      }
+      resp.json().then(reviews => {
+        iKeyVal.set('reviews', reviews);
+        callback(null, reviews);
+        });
+    }).catch(error => callback(error, null));
+
   }
 
   /**

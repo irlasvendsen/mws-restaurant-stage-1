@@ -284,7 +284,7 @@ nav h1 a {
 }
 .inside #footer {
   bottom: 0;
-  position: absolute;
+  /*position: absolute;*/
   width:100%;
 }
 #restaurant-name {
@@ -323,6 +323,12 @@ nav h1 a {
   padding: 140px 40px 30px; /**/
   width: 80%; /*50%*/
 }
+ #review-form {
+  border-bottom: 1px solid #d9d9d9;
+  border-top: 1px solid #fff;
+  padding: 40px 40px 30px; /**/
+  width: 80%; /*50%*/
+}
 #reviews-container {
   padding: 30px 40px 80px;
 }
@@ -353,6 +359,39 @@ nav h1 a {
 }
 #restaurant-hours td {
   color: #666;
+}
+form.form {
+    display: table;
+}
+
+div.form {
+    display: table-row;
+}
+
+div.form .labelform, .inputform {
+    display: table-cell;
+    margin-bottom: 10px;
+}
+
+#form-button {
+    display: table-cell;
+    margin-bottom: 10px;
+		padding: 20px 0px 0px 0px;
+}
+
+div.form .labelform {
+    padding-right: 10px;
+}
+
+#comments{
+	vertical-align: middle;
+}
+
+#form-rating > label{
+	opacity: 0;
+}
+#rating_lb{
+	opacity: 1!important;
 }
 
 .leaflet-container a{

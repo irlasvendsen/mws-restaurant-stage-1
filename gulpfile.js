@@ -7,8 +7,7 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var babelify = require('babelify');
 var browserify = require('browserify');
-
-
+var del = require('del');
 
 
 gulp.task('sass', function(){
@@ -21,30 +20,6 @@ gulp.task('sass', function(){
 		}))
 		.pipe(gulp.dest('dist/css'))
 		.pipe(browserSync.stream());
-});
-
-gulp.task('dbhelper', function(){
-
-	return browserify({
-		entries: ['./app/js/dbhelper.js']
-	})
-		.transform(babelify.configure({
-			presets : ['@babel/preset-env']
-		}))
-		.bundle()
-		.pipe(source('dbhelper.js'))
-		.pipe(buffer())
-		.pipe(gulp.dest('./dist/js'));
-
-
-	//var bundler = browserify('app/js/**/*.js');
-//  bundler.transform(babelify);
-//	return gulp.src('app/js/**/*.js')
-//		.pipe(babel({
-//			presets: ['env']
-//		}))
-//		.pipe(gulp.dest('dist/js'));
-	//return gulp.src('app/js/**/*.js').pipe(gulp.dest('dist/js'));
 });
 gulp.task('main', function(){
 
@@ -74,9 +49,56 @@ gulp.task('db', function(){
 		.pipe(gulp.dest('./dist'));
 });
 
+gulp.task('db1', function(){
+
+	return browserify({
+		entries: ['./app/js/dbhelper.js']
+	})
+		.transform(babelify.configure({
+			presets : ['@babel/preset-env']
+		}))
+		.bundle()
+		.pipe(source('js/dbhelper.js'))
+		.pipe(buffer())
+		.pipe(gulp.dest('./dist'));
+});
+
+gulp.task('main', function(){
+
+	return browserify({
+		entries: ['./app/js/main.js']
+	})
+		.transform(babelify.configure({
+			presets : ['@babel/preset-env']
+		}))
+		.bundle()
+		.pipe(source('js/main.js'))
+		.pipe(buffer())
+		.pipe(gulp.dest('./dist'));
+});
+
+gulp.task('restaurant', function(){
+
+	return browserify({
+		entries: ['./app/js/restaurant_info.js']
+	})
+		.transform(babelify.configure({
+			presets : ['@babel/preset-env']
+		}))
+		.bundle()
+		.pipe(source('js/restaurant_info.js'))
+		.pipe(buffer())
+		.pipe(gulp.dest('./dist'));
+});
+
+
+
+
+gulp.task('clean', del.bind(null, ['dist']));
 
 gulp.task('cp-js', function(){
-	return gulp.src(['./app/js/dbhelper.js', './app/js/main.js', './app/js/register.js', './app/js/restaurant_info.js']).pipe(gulp.dest('./dist/js'));
+	//'./app/js/main.js','!app/js/**/dbhelper.js' './app/js/register.js', './app/js/restaurant_info.js', './app/js/idb-keyval.mjs'
+	return gulp.src(['./app/js/*']).pipe(gulp.dest('./dist/js'));
 });
 
 gulp.task('cp-pages', function(){
@@ -91,6 +113,12 @@ gulp.task('cp-img', function(){
 	return gulp.src('./app/img/*').pipe(gulp.dest('./dist/img'));
 });
 
-gulp.task('default', gulp.parallel('sass','cp-pages','cp-img','cp-js', 'db', 'cp-manifest'), function(){
+gulp.task('watch', function() {
+	return	gulp.watch('app/css/**/*.css', ['html', 'css']);
+	//	gulp.watch('app/js/**/*.js', ['html', 'js', 'dbhelper']);
+	//	gulp.watch('app/sw.js', ['sw']);
+	});
+
+gulp.task('default', gulp.series('clean','sass','cp-pages','cp-img','cp-js', 'db', 'cp-manifest'), function(){
 	return;
 });
