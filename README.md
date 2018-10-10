@@ -11,11 +11,9 @@ For the **Restaurant Reviews** projects, you will incrementally convert a static
 You have been provided the code for a restaurant reviews website. The code has a lot of issues. It’s barely usable on a desktop browser, much less a mobile device. It also doesn’t include any standard accessibility features, and it doesn’t work offline at all. Your job is to update the code to resolve these issues while still maintaining the included functionality.
 
 ### What do I do from here?
-1. Run mws-restaurant-stage-2 on localhost 1337 (Read how to install on the README documentation) https://github.com/irlasvendsen/mws-restaurant-stage-3
+1. Run mws-restaurant-stage-3 on localhost 1337 (Read how to install on the README documentation) https://github.com/irlasvendsen/mws-restaurant-stage-3
 
-2. Install and run gulp command at command line on project https://github.com/irlasvendsen/mws-restaurant-stage-1
-
-3. Go to 'dist' folder created by gulp "cd dist"
+2. Go to 'dist' folder
 
 4. In the dist start up a simple HTTP server to serve up the site files on your local computer. Python has some simple tools to do this, and you don't even need to know Python. For most people, it's already installed on your computer.
 

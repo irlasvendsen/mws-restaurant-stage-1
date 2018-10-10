@@ -135,11 +135,8 @@ saveReview = () => {
 set_favorite = (checkbox) => {
   const checked = checkbox.checked ===true ? 'true':'false';
   DBHelper.setFavorite(self.restaurant.id, checked, (error, result) => {
-    console.log(result);
+    self.restaurant.is_favorite = checked;
     window.location.href = '/restaurant.html?id=' + self.restaurant.id;
-    if(error){
-     console.log(error);
-    }
   });
 
 }
@@ -240,3 +237,42 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+window.addEventListener('load', function() {
+
+  function updateOnlineStatus(event) {
+    var condition = navigator.onLine ? "online" : "offline";
+    if(condition == "online")
+    {
+      iKeyVal.get('reviews_pending').then(val => {
+        if (val != undefined){
+          val.forEach(rev =>{
+            fetch(DBHelper.allRestaurantReviews,{
+             method: 'POST',
+             mode:'cors',
+             headers: { 'Content-Type': 'application/json; charset=utf-8'
+                },
+                body:JSON.stringify({restaurant_id: rev.id,
+                            name: rev.name,
+                            rating: rev.rating,
+                            comments: rev.comments
+                          })
+            }).then(response => {
+              }).then(json =>json).catch( error => {
+
+            });
+          });
+        }
+      });
+      iKeyVal.get('reviews_pending').then(val => {
+        if (val != undefined){
+        iKeyVal.del('reviews_pending');
+        }
+      });
+      window.location.href = '/restaurant.html?id=' + self.restaurant.id;
+    }
+  }
+
+  window.addEventListener('online',  updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+});

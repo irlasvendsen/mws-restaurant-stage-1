@@ -58,7 +58,13 @@ function jsonBD(request) {
     }).then(response => new Response(JSON.stringify(response)));*/
 
   } else {
-	return get('restaurants')
+    return fetch(request)
+    .then(response => response.json())
+    .then(restaurantsj =>{
+      set('restaurants', restaurantsj);
+      return (restaurantsj || get('restaurants').then(restaurants => {return restaurants;}));
+    }).then(response => new Response(JSON.stringify(response)));
+	/*return get('restaurants')
 		.then(restaurants => {
 			return ( restaurants || fetch(request)
 				.then(response => response.json())
@@ -68,7 +74,7 @@ function jsonBD(request) {
 				})
 			);
 		})
-		.then(response => new Response(JSON.stringify(response)));
+		.then(response => new Response(JSON.stringify(response)));*/
   }
 }
 
@@ -90,8 +96,8 @@ self.addEventListener('fetch', function(event) {
 
 	if(reqUrl.port ==='1337'){
     if(event.request.method !== 'GET'){
-      return fetch(event.request).then(resp => resp.json())
-     .then(respjson => respjson);
+      //return fetch(event.request).then(resp => resp.json())
+     //.then(respjson => respjson);
     }else{
       event.respondWith(jsonBD(event.request));
     }

@@ -101,7 +101,10 @@ class DBHelper {
       mode:'cors',
       headers: { 'Content-Type': 'application/json; charset=utf-8'
          }
-    }).then(response =>response.json());
+    }).then(response =>{
+      console.log(response.json());
+    });
+
     callback(null, null);
   }
 
@@ -119,31 +122,6 @@ class DBHelper {
   }
 
   static fetchReviewByRestaurantId(id, callback) {
-    iKeyVal.get('reviews_pending').then(val => {
-      if (val != undefined){
-        val.forEach(rev =>{
-          fetch(DBHelper.allRestaurantReviews,{
-           method: 'POST',
-           mode:'cors',
-           headers: { 'Content-Type': 'application/json; charset=utf-8'
-              },
-              body:JSON.stringify({restaurant_id: rev.id,
-                          name: rev.name,
-                          rating: rev.rating,
-                          comments: rev.comments
-                        })
-          }).then(response => {
-            }).then(json =>json).catch( error => {
-
-          });
-        });
-      }
-    });
-    iKeyVal.get('reviews_pending').then(val => {
-      if (val != undefined){
-      iKeyVal.del('reviews_pending');
-      }
-    });
 
     fetch(DBHelper.allReviewsRestaurant(id),{method:'GET'}).then(resp => {
       if (!resp.ok) {

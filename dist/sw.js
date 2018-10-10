@@ -37,16 +37,27 @@ function jsonBD(request) {
       );
     }).then(response => new Response(JSON.stringify(response)));*/
   } else {
-    return (0, _idbKeyval.get)('restaurants').then(function (restaurants) {
-      return restaurants || fetch(request).then(function (response) {
-        return response.json();
-      }).then(function (restaurantsJ) {
-        (0, _idbKeyval.set)('restaurants', restaurantsJ);
-        return restaurantsJ;
+    return fetch(request).then(function (response) {
+      return response.json();
+    }).then(function (restaurantsj) {
+      (0, _idbKeyval.set)('restaurants', restaurantsj);
+      return restaurantsj || (0, _idbKeyval.get)('restaurants').then(function (restaurants) {
+        return restaurants;
       });
     }).then(function (response) {
       return new Response(JSON.stringify(response));
     });
+    /*return get('restaurants')
+    	.then(restaurants => {
+    		return ( restaurants || fetch(request)
+    			.then(response => response.json())
+    			.then(restaurantsJ => {
+    				set('restaurants', restaurantsJ);
+    				return restaurantsJ;
+    			})
+    		);
+    	})
+    	.then(response => new Response(JSON.stringify(response)));*/
   }
 }
 
@@ -65,12 +76,8 @@ self.addEventListener('fetch', function (event) {
   var reqUrl = new URL(event.request.url);
 
   if (reqUrl.port === '1337') {
-    if (event.request.method !== 'GET') {
-      return fetch(event.request).then(function (resp) {
-        return resp.json();
-      }).then(function (respjson) {
-        return respjson;
-      });
+    if (event.request.method !== 'GET') {//return fetch(event.request).then(resp => resp.json())
+      //.then(respjson => respjson);
     } else {
       event.respondWith(jsonBD(event.request));
     }
